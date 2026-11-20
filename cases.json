@@ -1,0 +1,114 @@
+[
+  [
+    "T01",
+    "touching after",
+    660,
+    720,
+    true
+  ],
+  [
+    "T02",
+    "starts now",
+    540,
+    570,
+    false
+  ],
+  [
+    "T03",
+    "zero duration",
+    720,
+    720,
+    false
+  ],
+  [
+    "T04",
+    "reversed",
+    750,
+    720,
+    false
+  ],
+  [
+    "T05",
+    "beyond day",
+    1380,
+    1441,
+    false
+  ],
+  [
+    "T06",
+    "exactly 120",
+    720,
+    840,
+    true
+  ],
+  [
+    "T07",
+    "121 minutes",
+    720,
+    841,
+    false
+  ],
+  [
+    "T08",
+    "touching before",
+    570,
+    600,
+    true
+  ],
+  [
+    "T09",
+    "partial overlap",
+    630,
+    690,
+    false
+  ],
+  [
+    "T10",
+    "contains booking",
+    570,
+    690,
+    false
+  ],
+  [
+    "T11",
+    "inside booking",
+    615,
+    645,
+    false
+  ],
+  [
+    "T12",
+    "identical",
+    600,
+    660,
+    false
+  ],
+  [
+    "T13",
+    "blocked",
+    660,
+    720,
+    false
+  ],
+  [
+    "T14",
+    "empty bookings",
+    630,
+    690,
+    true
+  ],
+  [
+    "T16",
+    "day end allowed",
+    1320,
+    1440,
+    true
+  ],
+  [
+    "T17",
+    "one minute overlap",
+    659,
+    719,
+    false
+  ]
+]

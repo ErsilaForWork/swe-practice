@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Campus Room Availability Checker</title>
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+      --text: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --success-bg: #dcfce7;
+      --success-text: #166534;
+      --success-border: #86efac;
+      --error-bg: #fee2e2;
+      --error-text: #991b1b;
+      --error-border: #fca5a5;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 16px;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    header {
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: #0f172a;
+      margin-bottom: 6px;
+    }
+
+    p.subtitle {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border: 1px solid var(--border);
+      margin-bottom: 20px;
+    }
+
+    .card-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 8px;
+    }
+
+    .info-list {
+      list-style: none;
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+    }
+
+    .info-list li {
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .toggle-container {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f1f5f9;
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-top: 10px;
+    }
+
+    .toggle-label {
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    /* Switch styling */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #cbd5e1;
+      transition: .2s;
+      border-radius: 24px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .2s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: #ef4444;
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(20px);
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .time-hint {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    input[type="time"],
+    input[type="number"] {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 1rem;
+    }
+
+    input:focus {
+      outline: 2px solid var(--primary);
+      border-color: transparent;
+    }
+
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    @media (max-width: 480px) {
+      .grid-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    button {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: var(--primary-hover);
+    }
+
+    .result {
+      padding: 14px;
+      border-radius: 6px;
+      display: none;
+      margin-top: 16px;
+    }
+
+    .result.available {
+      display: block;
+      background-color: var(--success-bg);
+      color: var(--success-text);
+      border: 1px solid var(--success-border);
+    }
+
+    .result.unavailable {
+      display: block;
+      background-color: var(--error-bg);
+      color: var(--error-text);
+      border: 1px solid var(--error-border);
+    }
+
+    .result-title {
+      font-weight: 700;
+      font-size: 1rem;
+      margin-bottom: 4px;
+    }
+
+    .result-reason {
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <h1>Smart Campus Room Checker</h1>
+    <p class="subtitle">Check room availability for your study session</p>
+  </header>
+
+  <!-- Room Info & Status -->
+  <div class="card">
+    <div class="card-title">Room Details: Room A101</div>
+    <ul class="info-list">
+      <li><span>Current Time (Now):</span> <strong>09:00 (540 min)</strong></li>
+      <li><span>Existing Booking:</span> <strong>10:00 – 11:00 (600–660 min)</strong></li>
+    </ul>
+
+    <div class="toggle-container">
+      <span class="toggle-label">Block Room (Simulate Out of Service):</span>
+      <label class="switch">
+        <input type="checkbox" id="blockToggle">
+        <span class="slider"></span>
+      </label>
+    </div>
+  </div>
+
+  <!-- Check Form -->
+  <div class="card">
+    <div class="card-title">Check Requested Time</div>
+    <form id="checkForm">
+      <div class="grid-2">
+        <div class="form-group">
+          <label for="startTime">Start Time (Minutes, 0–1440)</label>
+          <input type="number" id="startTime" required min="0" max="1440" step="1" value="555">
+          <div class="time-hint" id="startMinutesHint">Time: 09:15</div>
+        </div>
+
+        <div class="form-group">
+          <label for="endTime">End Time (Minutes, 0–1440)</label>
+          <input type="number" id="endTime" required min="0" max="1440" step="1" value="585">
+          <div class="time-hint" id="endMinutesHint">Time: 09:45</div>
+        </div>
+      </div>
+
+      <button type="submit">Check Availability</button>
+    </form>
+
+    <div id="resultBox" class="result">
+      <div id="resultTitle" class="result-title"></div>
+      <div id="resultReason" class="result-reason"></div>
+    </div>
+  </div>
+</div>
+
+<script src="booking.js"></script>
+<script>
+  // Setup fixed constraints and mock data
+  const NOW_MINUTES = 540; // 09:00
+  const EXISTING_BOOKING = { start: 600, end: 660 }; // 10:00 to 11:00
+
+  // Helper to parse integer minutes from numeric input string
+  function parseIntegerMinutes(valueStr) {
+    if (valueStr === null || valueStr === undefined || valueStr.trim() === '') {
+      return null;
+    }
+    const num = Number(valueStr);
+    if (!Number.isFinite(num) || !Number.isInteger(num)) {
+      return null;
+    }
+    return num;
+  }
+
+  // Helper to convert integer minutes after midnight to HH:MM time display string
+  function minutesToTimeDisplay(totalMinutes) {
+    if (totalMinutes === null || totalMinutes < 0 || totalMinutes > 1440) return '';
+    if (totalMinutes === 1440) return '24:00';
+    const hours = Math.floor(totalMinutes / 60);
+    const mins = totalMinutes % 60;
+    const hh = String(hours).padStart(2, '0');
+    const mm = String(mins).padStart(2, '0');
+    return `${hh}:${mm}`;
+  }
+
+  // DOM Elements
+  const startTimeInput = document.getElementById('startTime');
+  const endTimeInput = document.getElementById('endTime');
+  const startMinutesHint = document.getElementById('startMinutesHint');
+  const endMinutesHint = document.getElementById('endMinutesHint');
+  const blockToggle = document.getElementById('blockToggle');
+  const checkForm = document.getElementById('checkForm');
+  const resultBox = document.getElementById('resultBox');
+  const resultTitle = document.getElementById('resultTitle');
+  const resultReason = document.getElementById('resultReason');
+
+  // Update visual hints showing HH:MM (including 1440 = 24:00)
+  function updateHints() {
+    const startMin = parseIntegerMinutes(startTimeInput.value);
+    const endMin = parseIntegerMinutes(endTimeInput.value);
+    
+    startMinutesHint.textContent = startMin !== null ? `Time: ${minutesToTimeDisplay(startMin)}` : '';
+    endMinutesHint.textContent = endMin !== null ? `Time: ${minutesToTimeDisplay(endMin)}` : '';
+  }
+
+  // Clear result box on input change to prevent showing stale validation feedback
+  function resetResult() {
+    resultBox.className = 'result';
+    resultTitle.textContent = '';
+    resultReason.textContent = '';
+  }
+
+  function handleInputChange() {
+    updateHints();
+    resetResult();
+  }
+
+  startTimeInput.addEventListener('input', handleInputChange);
+  endTimeInput.addEventListener('input', handleInputChange);
+  blockToggle.addEventListener('change', resetResult);
+
+
+  // Form Submission Check
+  checkForm.addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const start = parseIntegerMinutes(startTimeInput.value);
+    const end = parseIntegerMinutes(endTimeInput.value);
+    const isBlocked = blockToggle.checked;
+
+    const check = validateAvailability(start, end, isBlocked);
+
+    // Render result
+    if (check.available) {
+      resultBox.className = 'result available';
+      resultTitle.textContent = 'Status: Available';
+      resultReason.textContent = check.reason;
+    } else {
+      resultBox.className = 'result unavailable';
+      resultTitle.textContent = 'Status: Unavailable';
+      resultReason.textContent = check.reason;
+    }
+  });
+
+  function validateAvailability(start, end, isBlocked) {
+    const available = canBook({start, end, now: NOW_MINUTES, blocked: isBlocked, bookings: [EXISTING_BOOKING]});
+    let reason = 'Choose a future interval of 1 to 120 minutes within the day.';
+    if (available) reason = 'Room A101 is available for your requested time.';
+    else if (isBlocked) reason = 'Room A101 is currently blocked / out of service.';
+    else if (start < EXISTING_BOOKING.end && end > EXISTING_BOOKING.start) reason = 'The requested time overlaps with the existing booking 10:00 to 11:00.';
+    return {available, reason};
+  }
+
+  // Initialize hints on page load
+  updateHints();
+</script>
+
+</body>
+</html>
