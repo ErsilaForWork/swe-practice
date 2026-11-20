@@ -381,12 +381,14 @@
   });
 
   function validateAvailability(start, end, isBlocked) {
-    const available = canBook({start, end, now: NOW_MINUTES, blocked: isBlocked, bookings: [EXISTING_BOOKING]});
-    let reason = 'Choose a future interval of 1 to 120 minutes within the day.';
-    if (available) reason = 'Room A101 is available for your requested time.';
-    else if (isBlocked) reason = 'Room A101 is currently blocked / out of service.';
-    else if (start < EXISTING_BOOKING.end && end > EXISTING_BOOKING.start) reason = 'The requested time overlaps with the existing booking 10:00 to 11:00.';
-    return {available, reason};
+    const REASONS = {
+      available: 'Room A101 is available for your requested time.',
+      blocked: 'Room A101 is currently blocked / out of service.',
+      overlap: 'The requested time overlaps with the existing booking 10:00 to 11:00.',
+      invalid: 'Choose a future interval of 1 to 120 minutes within the day.'
+    };
+    const decision = explainBooking({start, end, now: NOW_MINUTES, blocked: isBlocked, bookings: [EXISTING_BOOKING]});
+    return {available: decision.available, reason: REASONS[decision.reasonCode]};
   }
 
   // Initialize hints on page load

@@ -1,4 +1,4 @@
-# Smart Campus — Room Availability Checker (Experiment A baseline)
+# Smart Campus — Room Availability Checker
 
 Single-room availability checker for Room A101. All times are integer minutes
 after midnight on one day (0–1440). The scenario is fixed and fictional:
@@ -8,7 +8,8 @@ booking creation — checks are pure and stateless by design.
 
 ## Files
 
-- `booking.js` — pure rule function `canBook({start, end, now, blocked, bookings})` returning a boolean. Must not mutate its input.
+- `booking.js` — pure rule functions: `canBook({start, end, now, blocked, bookings})` returning a boolean (unchanged API), `explainBooking(input)` returning `{available, reasonCode}` with reason codes `available` | `blocked` | `overlap` | `invalid` (decision layer over `canBook`, preserving legacy UI precedence available -> blocked -> overlap -> generic, including the legacy quirk that the overlap message wins when past/duration/bounds checks also fail), and the shared overlap predicate `hasOverlap(start, end, bookings)`. None of these mutate their input.
+- `booking.explain.test.cjs` — focused regressions for `explainBooking` and `hasOverlap` (reason precedence, touching endpoints, immutability), tied to AC1–AC6.
 - `index.html` — the entire UI (styles, form, inline script with `validateAvailability`, `parseIntegerMinutes`, `minutesToTimeDisplay`). The UI must not be redesigned.
 - `cases.json` — fixture data: 16 tabular cases (T01–T14, T16, T17).
 - `booking.test.cjs` — runs the JSON cases plus purity tests T15, T18, T19.
@@ -18,12 +19,14 @@ booking creation — checks are pure and stateless by design.
 
 ```
 node --test booking.test.cjs
+node --test booking.explain.test.cjs
 node test_checker.cjs index.html --check-reset
 ```
 
 The `--check-reset` flag is optional but required for the stale-result reset
-assertions. Baseline counts: 19 node tests pass; 16 UI logic cases pass plus
-parsing/hint/reset checks. All assertions are current and must not be weakened.
+assertions. Counts: 19 tests in `booking.test.cjs`, 9 in
+`booking.explain.test.cjs`, and 16 UI logic cases plus parsing/hint/reset
+checks. All assertions are current and must not be weakened.
 
 ## Acceptance criteria (Lesson 09 numbering)
 
@@ -51,6 +54,8 @@ parsing/hint/reset checks. All assertions are current and must not be weakened.
 
 - Preserve the existing validation order in `canBook`: blocked check first,
   then integer/bounds checks (`start < 0 || start >= end || end > 1440 || start <= now`), then the 120-minute duration cap, then the overlap scan.
+- The UI maps reason codes from `explainBooking` to its exact existing
+  message strings and must not re-derive availability or overlap itself.
 - Preserve integer 0–1440 minute bounds, `start > now`, `start < end`,
   duration <= 120, blocked rejection, and strict-overlap-with-touching-allowed
   exactly as specified above.
