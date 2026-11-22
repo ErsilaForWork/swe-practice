@@ -76,3 +76,22 @@ checks. All assertions are current and must not be weakened.
 Run all existing tests without weakening assertions, plus focused regressions
 for the touched behavior. Report the exact commands, pass counts, and the
 list of changed files.
+
+## Safety & operations
+
+- The scenario data is fictional and contains no real personal data. Never
+  commit secrets, tokens, or credentials. This project needs none — if one
+  appears, stop and ask.
+- No production services, deploy, push, or merge. The app stays stateless
+  and local. Routine local checks (running tests, build, dev server on a
+  unique local port) are allowed without asking.
+- Work in a separate branch or worktree; do not touch unrelated files.
+- Stay within the files a task names. Touching other files requires a stated
+  reason first.
+- Verification gate: `npm test` then `npm run build`, plus a focused
+  regression for touched behavior and the UI check
+  (`node test_checker.cjs index.html --check-reset`).
+- Report the diff, exit codes, and any residual risks. Never report partial
+  verification as done.
+- Human approval is required before any merge or deploy. Never do either
+  automatically.

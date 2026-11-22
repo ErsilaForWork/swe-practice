@@ -3,7 +3,10 @@
   "private": true,
   "version": "1.0.0",
   "scripts": {
-    "dev": "vite --host 0.0.0.0"
+    "dev": "vite --host 0.0.0.0",
+    "test": "node --test booking.test.cjs booking.explain.test.cjs && node test_checker.cjs index.html --check-reset",
+    "build": "node build.cjs",
+    "verify": "npm test && npm run build"
   },
   "devDependencies": {
     "vite": "^5.4.21"
